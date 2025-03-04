@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding Challenge</title>
+</head>
+<body>
+
+    <h2>Enter the password</h2>
+    <form onsubmit="checkPassword(event)">
+        <input type="text" id="password1" placeholder="Enter password" required>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="result1"></div>
+
+    <h2>Enter the hashed password</h2>
+    <form onsubmit="checkHashedPassword(event)">
+        <input type="text" id="password2" placeholder="Enter password" required>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="result2"></div>
+
+    <h2>Need help?</h2>
+    <button onclick="revealPasswords()">Cheat</button>
+    <div id="cheatResult"></div>
+
+    <script>
+        // Generate a random 8-character alphanumeric password
+        function generateRandomPassword() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            return Array.from({length: 8}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+        }
+
+        // Hash function using SHA-256
+        async function hashString(str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+            return Array.from(new Uint8Array(hashBuffer)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+        }
+
+        let correctPassword = generateRandomPassword();
+        let storedHash = "";
+
+        // Generate a new hashed password every time the page loads
+        async function initialize() {
+            const hashedPassword = await hashString(correctPassword);
+            storedHash = hashedPassword;
+        }
+        
+        initialize(); // Start password generation on page load
+
+        function checkPassword(event) {
+            event.preventDefault();
+            const input = document.getElementById("password1").value;
+            if (input === correctPassword) {
+                document.getElementById("result1").innerText = "You won!";
+            } else {
+                document.getElementById("result1").innerText = "Incorrect password.";
+            }
+        }
+
+        async function checkHashedPassword(event) {
+            event.preventDefault();
+            const input = document.getElementById("password2").value;
+            const hashedInput = await hashString(input);
+            if (hashedInput === storedHash) {
+                document.getElementById("result2").innerHTML = '<a href="https://www.google.com">You found the secret!</a>';
+            } else {
+                document.getElementById("result2").innerText = "Incorrect password.";
+            }
+        }
+
+        function revealPasswords() {
+            document.getElementById("cheatResult").innerText = `First Password: ${correctPassword}\n(Second Password is hashed, but it’s the same!)`;
+        }
+    </script>
+
+</body>
+</html>
