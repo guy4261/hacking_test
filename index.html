@@ -7,25 +7,44 @@
 </head>
 <body>
 
-    <h2>Enter the password</h2>
+    <h2>Challenge 1</h2>
+    <form onsubmit="checkVisiblePassword(event)">
+        <input type="text" id="password0" placeholder="Enter password" required>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="result0"></div>
+
+    <h2>Challenge 2</h2>
     <form onsubmit="checkPassword(event)">
         <input type="text" id="password1" placeholder="Enter password" required>
         <button type="submit">Submit</button>
     </form>
     <div id="result1"></div>
 
-    <h2>Enter the hashed password</h2>
+    <h2>Challenge 3</h2>
     <form onsubmit="checkHashedPassword(event)">
         <input type="text" id="password2" placeholder="Enter password" required>
         <button type="submit">Submit</button>
     </form>
     <div id="result2"></div>
 
-    <h2>Need help?</h2>
-    <button onclick="revealPasswords()">Cheat</button>
-    <div id="cheatResult"></div>
+    <!-- Encoded "Cheat" Button (this will be decoded and inserted dynamically) -->
+    <div id="cheatContainer"></div>
 
     <script>
+        // Challenge 1: Fixed Password (Visible in Source)
+        const visiblePassword = "source123";
+
+        function checkVisiblePassword(event) {
+            event.preventDefault();
+            const input = document.getElementById("password0").value;
+            if (input === visiblePassword) {
+                document.getElementById("result0").innerText = "Correct!";
+            } else {
+                document.getElementById("result0").innerText = "Incorrect.";
+            }
+        }
+
         // Generate a random 8-character alphanumeric password
         function generateRandomPassword() {
             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -43,21 +62,20 @@
         let correctPassword = generateRandomPassword();
         let storedHash = "";
 
-        // Generate a new hashed password every time the page loads
         async function initialize() {
             const hashedPassword = await hashString(correctPassword);
             storedHash = hashedPassword;
         }
-        
-        initialize(); // Start password generation on page load
+
+        initialize(); // Generate new random passwords on page load
 
         function checkPassword(event) {
             event.preventDefault();
             const input = document.getElementById("password1").value;
             if (input === correctPassword) {
-                document.getElementById("result1").innerText = "You won!";
+                document.getElementById("result1").innerText = "Correct!";
             } else {
-                document.getElementById("result1").innerText = "Incorrect password.";
+                document.getElementById("result1").innerText = "Incorrect.";
             }
         }
 
@@ -66,15 +84,22 @@
             const input = document.getElementById("password2").value;
             const hashedInput = await hashString(input);
             if (hashedInput === storedHash) {
-                document.getElementById("result2").innerHTML = '<a href="https://www.google.com">You found the secret!</a>';
+                document.getElementById("result2").innerHTML = '<a href="https://www.google.com">Correct!</a>';
             } else {
-                document.getElementById("result2").innerText = "Incorrect password.";
+                document.getElementById("result2").innerText = "Incorrect.";
             }
         }
 
-        function revealPasswords() {
-            document.getElementById("cheatResult").innerText = `First Password: ${correctPassword}\n(Second Password is hashed, but it’s the same!)`;
+        // Encoded "Cheat" functionality (Base64)
+        const encodedCheat = "PGRpdiBpZD0iY2hlYXQiPjxoMj5DaGFsbGVuZ2UgNDwvaDI+PGJ1dHRvbiBvbmNsaWNrPSJyZXZlYWxQYXNzd29yZHMoKSI+Q2hlYXQ8L2J1dHRvbj48ZGl2IGlkPSJjaGVhdFJlc3VsdCI+PC9kaXY+PC9kaXY+CjxzY3JpcHQ+CjAgICAgIGZ1bmN0aW9uIHJldmVhbFBhc3N3b3JkcygpIHsKICAgICAgICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgiY2hlYXRSZXN1bHQiKS5pbm5lclRleHQgPSBgQ2hhbGxlbmdlIDQgc2VjcmV0czogXCR7Y29ycmVjdFBhc3N3b3JkfVxuKFNlY29uZCBQYXNzd29yZCBpcyBoYXNoZWQsIGJ1dCBpdCdzIHRoZSBzYW1lISlcbiA8L2I+YDsKICAgIH0KPC9zY3JpcHQ+";
+
+        function decodeAndInsertCheat() {
+            const decodedHtml = atob(encodedCheat);
+            document.getElementById("cheatContainer").innerHTML = decodedHtml;
         }
+
+        decodeAndInsertCheat(); // Decode and insert the cheat section on page load
     </script>
+
 </body>
 </html>
