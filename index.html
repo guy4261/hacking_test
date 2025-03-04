@@ -95,7 +95,18 @@
 
         function decodeAndInsertCheat() {
             const decodedHtml = atob(encodedCheat);
-            document.getElementById("cheatContainer").innerHTML = decodedHtml;
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = decodedHtml;
+
+            // Insert the decoded content into the page
+            document.getElementById("cheatContainer").appendChild(tempDiv);
+
+            // Extract and execute any scripts inside the newly added content
+            tempDiv.querySelectorAll("script").forEach((script) => {
+                const newScript = document.createElement("script");
+                newScript.textContent = script.textContent;
+                document.body.appendChild(newScript);
+            });
         }
 
         decodeAndInsertCheat(); // Decode and insert the cheat section on page load
